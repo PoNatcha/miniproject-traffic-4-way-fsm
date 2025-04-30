@@ -1,0 +1,33 @@
+module traffic_light_fsm_tb;
+  reg clk;
+  reg reset;
+  wire [2:0] lights;
+  wire [6:0] seg_left;
+
+  traffic_light_fsm uut (
+    .clk(clk),
+    .reset(reset),
+    .lights(lights),
+    .seg_left(seg_left)
+  );
+
+  always #5 clk = ~clk; 
+
+  initial begin
+    clk = 0;
+    reset = 0;
+    $display("Starting simulation...");
+    $dumpfile("traffic_light.vcd");
+    $dumpvars(0, traffic_light_fsm_tb);
+    reset = 1;
+    #10;
+    reset = 0;
+    #10;
+    repeat(30) begin
+      #10;
+      $display("At time %t, lights = %b, green_time_left = %b", $time, lights, seg_left);
+    end
+    $display("Simulation finished.");
+    $finish;
+  end
+endmodule

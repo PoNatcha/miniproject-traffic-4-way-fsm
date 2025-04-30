@@ -1,0 +1,105 @@
+module simple_alu_tb;
+
+  // Inputs
+  reg clk;
+  reg reset;
+  reg [0:0] enable;
+  reg [1:0] mode;
+  reg [7:0] a;
+  reg [7:0] b;
+  
+  // Outputs
+  wire [31:0] c;
+  
+  // Instantiate the ALU module
+  simple_alu uut (
+    .clk(clk),
+    .reset(reset),
+    .enable(enable),
+    .mode(mode),
+    .a(a),
+    .b(b),
+    .c(c)
+  );
+
+    initial begin
+      // Initialize the VCD dump for specific signals
+      $dumpfile("dump.vcd"); 
+      $dumpvars(0, clk, reset, enable, mode, a, b, c); // Dump only specified signals
+    end
+  
+  // Clock generation
+  always begin
+    #5 clk = ~clk; // Generate clock signal with a period of 10 units
+  end
+  
+  // Stimulus
+  initial begin
+    // Initialize inputs
+    clk = 0;
+    reset = 0;
+    enable = 0;
+    mode = 2'b00;
+    a = 8'd10;
+    b = 8'd5;
+
+    // Reset the module
+    $display("Starting reset...");
+    reset = 1;
+    #10;
+    reset = 0;
+    #10;
+
+    // Test Addition (mode = 00)
+    enable = 1;
+    mode = 2'b00;
+    a = 8'd10;
+    b = 8'd5;
+    $display("Test Addition: a = %d, b = %d, expected c = %d", a, b, a + b);
+    #20;
+
+    // Test Subtraction (mode = 01)
+    mode = 2'b01;
+    a = 8'd10;
+    b = 8'd5;
+    $display("Test Subtraction: a = %d, b = %d, expected c = %d", a, b, a - b);
+    #20;
+
+    // Test Multiplication (mode = 10)
+    mode = 2'b10;
+    a = 8'd10;
+    b = 8'd5;
+    $display("Test Multiplication: a = %d, b = %d, expected c = %d", a, b, a * b);
+    #20;
+
+    // Test Division (mode = 11)
+    mode = 2'b11;
+    a = 8'd10;
+    b = 8'd5;
+    $display("Test Division: a = %d, b = %d, expected c = %d", a, b, a / b);
+    #20;
+
+    // Test edge case: Division by zero
+    mode = 2'b11;
+    a = 8'd10;
+    b = 8'd0;
+    $display("Test Division by Zero: a = %d, b = %d, expected c = Undefined (or error)", a, b);
+    #20;
+
+    // Test with different values for a and b
+    mode = 2'b00; // Addition
+    a = 8'd255;
+    b = 8'd1;
+    $display("Test Addition (a = 255, b = 1): a = %d, b = %d, expected c = %d", a, b, a + b);
+    #20;
+    
+    // End of test
+    $finish;
+  end
+  
+  // Monitor outputs
+  initial begin
+    $monitor("At time %t, c = %d (a = %d, b = %d, mode = %b)", $time, c, a, b, mode);
+  end
+
+endmodule
